@@ -29,9 +29,9 @@ async def upload_data(project_id:str, file:UploadFile,
         
     ## store file in a folder with the name of project_id
     project_project_path = ProjectController().get_project_path(project_id=project_id) #src/assets/files/id
-    file_name = data_controller.generate_unique_file_name(original_file_name=file.filename,
+    file_id = data_controller.generate_unique_file_name(original_file_name=file.filename,
                                                         project_id=project_id)
-    file_path = os.path.join(project_project_path, file_name)
+    file_path = os.path.join(project_project_path, file_id)
     
     # open file writing as binary , chunk by chunk -> memory efficient
     try:
@@ -47,6 +47,7 @@ async def upload_data(project_id:str, file:UploadFile,
             content= ResponseSignal.FILE_UPLOAD_FAILED.value
         )
             
-    return JSONResponse(content={"signal": ResponseSignal.FILE_UPLOAD_SUCCESS.value})
+    return JSONResponse(content={"signal": ResponseSignal.FILE_UPLOAD_SUCCESS.value,
+                                "file_id": file_id})
         
     
