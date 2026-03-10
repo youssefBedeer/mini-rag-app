@@ -9,3 +9,4 @@ langchain-openai==1.1.10
 langchain-community==0.4.1
 langchain-text-splitters==1.1.1
 pymupdf==1.27.1
+motor==3.7.1

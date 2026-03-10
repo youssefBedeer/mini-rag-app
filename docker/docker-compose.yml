@@ -1,0 +1,15 @@
+services:
+  mongo:
+    image: mongo:8.2.5
+    container_name: mongodb
+    platform: linux/amd64
+    ports:
+      - "27007:27017"
+    volumes:
+      - ./mongodb:/data/db
+    networks:
+      - backend
+    restart: always
+
+networks:
+  backend:
