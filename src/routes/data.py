@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, status 
+from fastapi import APIRouter, Depends, UploadFile, status, Request
 from fastapi.responses import JSONResponse
 import os 
 from helpers.config import Settings, get_settings
@@ -7,6 +7,9 @@ import aiofiles
 from models import ResponseSignal
 import logging 
 from .schemas.data import ProcessRequest
+from models.ProjectModel import ProjectModel
+from models.db_schemas import Project
+from pymongo.database import Database
 
 
 
@@ -17,10 +20,15 @@ data_router = APIRouter(
     tags = ["api_v1", "data"]
 )
 
+def get_db(request:Request)->Database:
+    return request.app.db_client
+
 @data_router.post("/upload/{project_id}")
 async def upload_data(project_id:str, file:UploadFile,
-                    app_settings:Settings = Depends(get_settings)):
+                    app_settings:Settings = Depends(get_settings),
+                    db:Database=Depends(get_db)):
     data_controller = DataController()
+    project_model = ProjectModel(db_client=db)
     
     
     # validate the file properties
@@ -29,6 +37,9 @@ async def upload_data(project_id:str, file:UploadFile,
     if not is_valid:
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND,
                             content={"signal" : result_signal})
+        
+    # store in mongodb    
+    project = await project_model.get_project_or_create_one(project_id=project_id)
         
         
     ## store file in a folder with the name of project_id
@@ -52,7 +63,8 @@ async def upload_data(project_id:str, file:UploadFile,
         )
             
     return JSONResponse(content={"signal": ResponseSignal.FILE_UPLOAD_SUCCESS.value,
-                                "file_id": file_id})
+                                "file_id": file_id,
+                                "project_id": str(project.id)})
         
     
 @data_router.post("process/{project_id}")
