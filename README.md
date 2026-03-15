@@ -70,3 +70,17 @@ Set your environment variables in the `.env` file. Like `OPENAI_API_KEY` value.
 ```bash 
 uvicorn main:app --reload --host 0.0.0.0 --port 5000
 ```
+
+## command to clean docker 
+```bash
+# stop all containers
+sudo docker stop ${sudo docker ps -aq}
+# remove all stopped containers 
+sudo docker rm ${sudo docker ps -aq}
+# remove all images 
+sudo docker rmi ${sudo docker ps -q}
+# remove all volumes
+sudo docker volume rm ${sudo docker volume ls -q}
+# clean everything remaining
+sudo docker system prune -all
+```
