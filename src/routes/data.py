@@ -8,8 +8,11 @@ from models import ResponseSignal
 import logging 
 from .schemas.data import ProcessRequest
 from models.ProjectModel import ProjectModel
+from models.ChunkModel import ChunkModel
 from models.db_schemas import Project
+from models.db_schemas import DataChunk
 from pymongo.database import Database
+
 
 
 
@@ -68,16 +71,20 @@ async def upload_data(project_id:str, file:UploadFile,
         
     
 @data_router.post("process/{project_id}")
-async def process_data(project_id: str, process_request: ProcessRequest):
+async def process_data(project_id: str, process_request: ProcessRequest,
+                    db:Database=Depends(get_db)):
     file_id = process_request.file_id
     chunk_size = process_request.chunk_size 
     overlap = process_request.overlap 
     do_reset = process_request.do_reset
     
+    
+    project_model = ProjectModel(db_client=db)
+    chunk_model = ChunkModel(db_client=db)
     process_controller = ProcessController(project_id=project_id)
     
-    file_ext = process_controller.get_file_extension(file_id=file_id)
-    file_path = process_controller.get_proper_loader(file_id=file_id)
+    
+    project = await project_model.get_project_or_create_one(project_id=project_id)
     
     file_content = process_controller.get_content(file_id=file_id)
     
@@ -93,5 +100,28 @@ async def process_data(project_id: str, process_request: ProcessRequest):
                                 "signal" : ResponseSignal.PROCESS_FAILED.value
                             })
         
-    return file_chunks
+    file_chunks_records = [
+        DataChunk(
+            chunk_text=chunk.page_content,
+            chunk_metadata=chunk.metadata,
+            chunk_order=i+1,
+            chunk_project_id= project.id
+        )
+
+        for i, chunk in enumerate(file_chunks)
+    ]
+    
+    if do_reset == 1:
+        _ = await chunk_model.delete_chunks_by_project_id(
+            project_id=project.id
+        )
+
+    no_records = await chunk_model.insert_many_chunks(chunks=file_chunks_records)
+
+    return JSONResponse(
+        content={
+            "signal": ResponseSignal.PROCESS_SUCCESS.value,
+            "inserted_chunks": no_records
+        }
+    )
     

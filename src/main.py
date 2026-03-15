@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
     
     # Close on finish
     yield
-    app.mongo_conn.close()
+    await app.mongo_conn.close()
 
 
 app = FastAPI(lifespan=lifespan)
