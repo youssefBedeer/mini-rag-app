@@ -30,8 +30,10 @@ def get_db(request:Request)->Database:
 async def upload_data(project_id:str, file:UploadFile,
                     app_settings:Settings = Depends(get_settings),
                     db:Database=Depends(get_db)):
+    
     data_controller = DataController()
-    project_model = ProjectModel(db_client=db)
+    project_controller = ProjectController()
+    project_model = await ProjectModel.create_instance(db_client=db)
     
     
     # validate the file properties
@@ -46,7 +48,7 @@ async def upload_data(project_id:str, file:UploadFile,
         
         
     ## store file in a folder with the name of project_id
-    project_project_path = ProjectController().get_project_path(project_id=project_id) #src/assets/files/id
+    project_project_path = project_controller.get_project_path(project_id=project_id) #src/assets/files/id
     file_id = data_controller.generate_unique_file_name(original_file_name=file.filename,
                                                         project_id=project_id)
     file_path = os.path.join(project_project_path, file_id)
@@ -79,8 +81,8 @@ async def process_data(project_id: str, process_request: ProcessRequest,
     do_reset = process_request.do_reset
     
     
-    project_model = ProjectModel(db_client=db)
-    chunk_model = ChunkModel(db_client=db)
+    project_model = await ProjectModel.create_instance(db_client=db)
+    chunk_model = await ChunkModel.create_instance(db_client=db)
     process_controller = ProcessController(project_id=project_id)
     
     

@@ -73,14 +73,18 @@ uvicorn main:app --reload --host 0.0.0.0 --port 5000
 
 ## command to clean docker 
 ```bash
-# stop all containers
-sudo docker stop ${sudo docker ps -aq}
-# remove all stopped containers 
-sudo docker rm ${sudo docker ps -aq}
-# remove all images 
-sudo docker rmi ${sudo docker ps -q}
-# remove all volumes
-sudo docker volume rm ${sudo docker volume ls -q}
-# clean everything remaining
-sudo docker system prune -all
+# Stop all running containers
+sudo docker stop $(sudo docker ps -aq)
+
+# Remove all containers (stopped + exited)
+sudo docker rm $(sudo docker ps -aq)
+
+# Remove all images
+sudo docker rmi $(sudo docker images -q)
+
+# Remove all volumes
+sudo docker volume rm $(sudo docker volume ls -q)
+
+# Clean everything remaining (networks + cache + dangling)
+sudo docker system prune -a
 ```

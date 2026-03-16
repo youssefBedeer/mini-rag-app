@@ -14,4 +14,17 @@ class DataChunk(BaseModel):
                     "populate_by_name": True,
                     "json_encoders": {ObjectId: str}
                     }
+    
+    
+    @classmethod 
+    def get_indexes(cls):
+        return [
+            {
+                "key": [
+                    ("chunk_project_id", 1)
+                ],
+                "name": "chunk_project_id_index_1",
+                "unique": False # many chunks have the same chunk_project_id
+            }
+        ]
 
