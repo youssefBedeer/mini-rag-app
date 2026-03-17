@@ -7,13 +7,9 @@ import aiofiles
 from models import ResponseSignal
 import logging 
 from .schemas.data import ProcessRequest
-from models.ProjectModel import ProjectModel
-from models.ChunkModel import ChunkModel
-from models.db_schemas import Project
-from models.db_schemas import DataChunk
+from models import ChunkModel, AssetModel, ProjectModel
+from models import Project, DataChunk, Asset
 from pymongo.database import Database
-
-
 
 
 logger = logging.getLogger('uvicorn.error')
@@ -26,6 +22,7 @@ data_router = APIRouter(
 def get_db(request:Request)->Database:
     return request.app.db_client
 
+
 @data_router.post("/upload/{project_id}")
 async def upload_data(project_id:str, file:UploadFile,
                     app_settings:Settings = Depends(get_settings),
@@ -34,7 +31,7 @@ async def upload_data(project_id:str, file:UploadFile,
     data_controller = DataController()
     project_controller = ProjectController()
     project_model = await ProjectModel.create_instance(db_client=db)
-    
+    asset_model = await AssetModel.create_instance(db_client=db)
     
     # validate the file properties
     is_valid, result_signal = data_controller.validate_file_type(file=file)
@@ -66,10 +63,23 @@ async def upload_data(project_id:str, file:UploadFile,
             status_code= status.HTTP_400_BAD_REQUEST,
             content= ResponseSignal.FILE_UPLOAD_FAILED.value
         )
-            
-    return JSONResponse(content={"signal": ResponseSignal.FILE_UPLOAD_SUCCESS.value,
-                                "file_id": file_id,
-                                "project_id": str(project.id)})
+        
+    # store asset info in (asset_collection) db
+    asset_size = round(os.path.getsize(file_path) / 1024, 2)
+    asset_resource = Asset(
+                        asset_name=file_id, 
+                        asset_project_id=project.id,
+                        asset_size=asset_size,
+                        asset_type=file.content_type)
+    
+    asset_record = await asset_model.create_asset(asset=asset_resource)
+
+    return JSONResponse(
+            content={
+                "signal": ResponseSignal.FILE_UPLOAD_SUCCESS.value,
+                "file_id": str(asset_record.id),
+            }
+        )
         
     
 @data_router.post("process/{project_id}")
