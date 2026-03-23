@@ -3,6 +3,7 @@ from enum import Enum
 class LLMEnums(Enum):
     OPENAI= "OPENAI" 
     COHERE= "COHERE"
+    OPENROUTER = "OPENROUTER"
     
 class OpenAIEnums(Enum):
     SYSTEM = "system" 
@@ -17,6 +18,11 @@ class CoHereEnums(Enum):
     DOCUMENT = "search_document"
     QUERY = "search_query"
     
+class OpenRouterEnums(Enum):
+    SYSTEM = "SYSTEM" 
+    USER = "USER" 
+    ASSISTANT = "CHATBOT"
+
 class DocumentTypeEnum(Enum):
     DOCUMENT = "document" 
     QUERY = "query"

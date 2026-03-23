@@ -14,3 +14,6 @@ pymongo==4.16.0
 openai==2.29.0
 cohere==5.20.7
 openrouter==0.7.11
+huggingface-hub==1.7.2
+
+
