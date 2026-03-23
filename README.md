@@ -7,7 +7,7 @@ git clone https://github.com/youssefBedeer/mini-rage-app.git mini-rag-app
 
 ## Create conda environment
 ```bash
-conda create -n mini-rag-app python=3.8
+conda create -n mini-rag-app python=3.11
 conda activate mini-rag-app
 ```
 install wsl to run linux on our window system<br>
@@ -36,7 +36,7 @@ bash ~/.profile
 ```
 create conda env in ubuntu 
 ```bash
-conda create -n mini-rag-app python=3.8
+conda create -n mini-rag-app python=3.11
 ```
 open new ubuntu CLI (on working dir)
 ```bash
