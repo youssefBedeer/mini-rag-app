@@ -29,15 +29,21 @@ class Settings(BaseSettings):
     HF_API_KEY: Optional[str] = None
 
     # Models
-    GENERATION_MODEL_ID: Optional[str] = None
-    EMBEDDING_MODEL_ID: Optional[str] = None
-    EMBEDDING_MODEL_SIZE: Optional[int] = None
+    GENERATION_MODEL_ID: str 
+    EMBEDDING_MODEL_ID: str 
+    EMBEDDING_MODEL_SIZE: int
 
     # Defaults
-    INPUT_DEFAULT_MAX_CHARACTERS: Optional[int] = None
-    GENERATION_DEFAULT_MAX_TOKENS: Optional[int] = None
-    GENERATION_DEFAULT_TEMPERATURE: Optional[float] = None
+    INPUT_DEFAULT_MAX_CHARACTERS: Optional[int] 
+    GENERATION_DEFAULT_MAX_TOKENS: Optional[int] 
+    GENERATION_DEFAULT_TEMPERATURE: Optional[float] 
 
+    # VectorDB CONFIG
+    VECTOR_DB_BACKEND: str
+    VECTOR_DB_PATH: str
+    VECTOR_DB_DISTANCE_METHOD: str
+    
+    
     model_config = SettingsConfigDict(env_file=".env")
 
 

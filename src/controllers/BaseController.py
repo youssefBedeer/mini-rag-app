@@ -41,3 +41,9 @@ class BaseController:
         filename = (name[:100] + ext[:10])  # limit length
 
         return filename
+    
+    def get_database_path(self, db_name: str):
+        database_path = os.path.join(self.base_dir, db_name)
+        os.makedirs(database_path, exist_ok=True)
+        
+        return database_path
