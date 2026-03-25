@@ -1,9 +1,12 @@
+from models.db_schemas.data_chunk import RetrievedDocument
+
 from ..VectorDBInterface import VectorDBInterface 
 from ..VectorDBEnums import DistanceMethodEnums
 import logging 
 from qdrant_client import QdrantClient, models
 from qdrant_client.models import Distance, VectorParams
 from typing import List
+import numpy as np
 
 class QdrantDB(VectorDBInterface):
     def __init__(self, db_path:str, distance_method: str = "cosine"):
@@ -15,7 +18,7 @@ class QdrantDB(VectorDBInterface):
             self.distance_method = models.Distance.COSINE
             
         elif distance_method == DistanceMethodEnums.DOT.value:
-            self.distance_method = models.Distance.Dot
+            self.distance_method = models.Distance.DOT
             
         self.logger = logging.getLogger(__name__)
     
@@ -71,6 +74,7 @@ class QdrantDB(VectorDBInterface):
                 collection_name=collection_name,
                 points=[
                     models.PointStruct( 
+                        id = [record_id],
                         vector = vector, 
                         payload= {
                             "text": text,
@@ -101,12 +105,13 @@ class QdrantDB(VectorDBInterface):
             metadata = [None] * len(texts)
             
         if record_ids is None:
-            record_ids = [None] * len(texts)
+            record_ids = list(range(0, len(texts)))
                 
         for i in range(0, len(texts), batch_size):
                 
             batch_end = i + batch_size 
             
+            batch_record_ids = record_ids[i:batch_end]
             batch_texts = texts[i:batch_end]
             batch_vecotrs = vectors[i:batch_end]
             batch_metadata = metadata[i:batch_end]
@@ -114,6 +119,7 @@ class QdrantDB(VectorDBInterface):
             batch_records = [
 
                 models.PointStruct( 
+                    id = batch_record_ids[x],
                     vector = batch_vecotrs[x], 
                     payload= {
                         "text": batch_texts[x],
@@ -135,16 +141,22 @@ class QdrantDB(VectorDBInterface):
             
         return True
         
-    def search_by_vector(self, collection_name: str,
-                               vector: list,
-                               limit: int = 5):
+
+    def search_by_vector(self, collection_name: str, vector, limit: int = 5) -> List[RetrievedDocument] :
         if not self.is_collection_existed(collection_name=collection_name):
             self.logger.error(f"Can not search, collection: {collection_name} not existed.")
             return False
-        
-        return self.client.query_points(
+
+        results =  self.client.query_points(
             collection_name=collection_name,
-            query= vector,
+            query=vector,
             limit=limit
-            
         )
+
+        return [
+            RetrievedDocument(**{
+                "text": result.payload["text"],
+                "score": result.score
+            })
+            for result in results.points
+        ]

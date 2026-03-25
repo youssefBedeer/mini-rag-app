@@ -5,7 +5,7 @@ import cohere
 
 
 class CoHereProvider(LLMInterface):
-    def __init__(self, api_key: str, api_url: str= None,
+    def __init__(self, api_key: str, base_url: str= None,
                     default_input_max_characters: int= 1000,
                     default_generation_max_output_tokens: int= 1000,
                     default_generation_temperature: float= 0.1,
@@ -22,6 +22,7 @@ class CoHereProvider(LLMInterface):
         
         self.client = cohere.ClientV2(api_key= self.api_key)
         
+        self.enums = CoHereEnums
         self.logger = logging.getLogger(__name__)
         
         
@@ -30,7 +31,7 @@ class CoHereProvider(LLMInterface):
         
         
     def set_embedding_model(self, model_id: str, embedding_size: int):
-        self.embedding_model_name = model_id
+        self.embedding_model_id = model_id
         self.embedding_size = embedding_size
         
         
@@ -39,7 +40,7 @@ class CoHereProvider(LLMInterface):
             self.logger.error("CoHere client was not set")
             return None 
         
-        if not self.embedding_model_name:
+        if not self.embedding_model_id:
             self.logger.error("Embedding model for CoHere was not set")
             return None
         

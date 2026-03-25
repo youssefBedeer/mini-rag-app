@@ -150,7 +150,7 @@ async def process_data(project_id: str, process_request: ProcessRequest,
             overlap=overlap
         )
         if file_chunks is None or len(file_chunks) == 0:
-            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST.value,
+            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
                                 content={
                                     "signal" : ResponseSignal.PROCESS_FAILED.value
                                 })

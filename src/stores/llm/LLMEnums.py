@@ -19,9 +19,9 @@ class CoHereEnums(Enum):
     QUERY = "search_query"
     
 class OpenRouterEnums(Enum):
-    SYSTEM = "SYSTEM" 
-    USER = "USER" 
-    ASSISTANT = "CHATBOT"
+    SYSTEM = "system" 
+    USER = "user" 
+    ASSISTANT = "assistant"
 
 class DocumentTypeEnum(Enum):
     DOCUMENT = "document" 

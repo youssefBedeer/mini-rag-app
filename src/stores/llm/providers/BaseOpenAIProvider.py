@@ -23,9 +23,10 @@ class BaseOpenAIProvider(LLMInterface):
         
         self.client = OpenAI(
             api_key= self.api_key,
-            base_url= self.base_url
+            base_url = self.base_url if self.base_url and len(self.base_url) else None
         )
         
+        self.enums = OpenAIEnums
         self.logger = logging.getLogger(__name__)
         
         
@@ -46,19 +47,17 @@ class BaseOpenAIProvider(LLMInterface):
         if not self.embedding_model_id:
             self.logger.error("Embedding model for OpenAI was not set")
             return None
-        
-        texts = [text] if isinstance(text, str) else text
-        
+                
         response = self.client.embeddings.create(
             model = self.embedding_model_id,
-            input = texts
+            input = text
         )
         
         if not response or not response.data or not response.data[0].embedding:
             self.logger.error("Error while embedding text with OpenAI")
             return None 
         
-        return [item.embedding for item in response.data]
+        return response.data[0].embedding
     
     
     def process_text(self, text: str):
@@ -72,7 +71,7 @@ class BaseOpenAIProvider(LLMInterface):
                 }            
     
     
-    def generate_text(self, prompt: str, max_output_tokens: int, 
+    def generate_text(self, prompt: str, max_output_tokens: int = 1000, 
                     temperature: float = None,
                     chat_history: list = []):
                 
