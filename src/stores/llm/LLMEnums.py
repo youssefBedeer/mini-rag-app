@@ -4,6 +4,7 @@ class LLMEnums(Enum):
     OPENAI= "OPENAI" 
     COHERE= "COHERE"
     OPENROUTER = "OPENROUTER"
+    HUGGINGFACE = "HUGGINGFACE"
     
 class OpenAIEnums(Enum):
     SYSTEM = "system" 

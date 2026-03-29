@@ -41,7 +41,7 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
     nlp_controller = NLPController(vectordb_client = request.app.vectordb_client,
                                     generation_client = request.app.generation_client,
                                     embedding_client = request.app.embedding_client,
-                                    templet_parser = request.app.template_parser
+                                    template_parser = request.app.template_parser
                                 )
     
     has_records = True 
@@ -104,7 +104,7 @@ async def get_project_index_info(request: Request, project_id: str):
     nlp_controller = NLPController(vectordb_client = request.app.vectordb_client,
                                     generation_client = request.app.generation_client,
                                     embedding_client = request.app.embedding_client,
-                                    templet_parser = request.app.template_parser
+                                    template_parser = request.app.template_parser
                                 )
     
     
@@ -132,7 +132,7 @@ async def search_index(request: Request, project_id: str, search_request: Search
     nlp_controller = NLPController(vectordb_client = request.app.vectordb_client,
                                     generation_client = request.app.generation_client,
                                     embedding_client = request.app.embedding_client,
-                                    template_parser= request.app.template_parser
+                                    template_parser = request.app.template_parser
                                 )
     
     results = nlp_controller.search_vectordb_collection(
@@ -140,6 +140,7 @@ async def search_index(request: Request, project_id: str, search_request: Search
         text= search_request.text,
         limit= search_request.limit
     )
+    print(results)
     
     if not results:
         return JSONResponse(
@@ -153,7 +154,7 @@ async def search_index(request: Request, project_id: str, search_request: Search
     return JSONResponse(
         content= {
             "signal": ResponseSignal.VECTORDB_SEARCH_SUCCESS.value,
-            "results": [result for result in results]
+            "results": [result.model_dump() for result in results]
         }
     )
     
@@ -173,7 +174,7 @@ async def rag_answer(request: Request, project_id: str, search_request: SearchRe
     nlp_controller = NLPController(vectordb_client = request.app.vectordb_client,
                                     generation_client = request.app.generation_client,
                                     embedding_client = request.app.embedding_client,
-                                    template_parser= request.app.template_parser
+                                    template_parser = request.app.template_parser
                                 )
     
     answer, full_prompt, chat_history = nlp_controller.answer_rag_question(
