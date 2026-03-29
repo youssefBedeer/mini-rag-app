@@ -1,4 +1,4 @@
-from .providers import CoHereProvider, OpenRouterProvider, OpenAIProvider, HuggingFaceProvider
+from .providers import CoHereProvider, OpenAIProvider, HuggingFaceProvider
 from .LLMEnums import LLMEnums
 
 
@@ -12,14 +12,13 @@ class LLMProviderFactory:
         if provider == LLMEnums.OPENAI.value:
             instance = OpenAIProvider(
                 api_key=self.config.OPENAI_API_KEY,
-                base_url=self.config.OPENAI_API_URL
+                base_url=self.config.OPENAI_API_URL,
+                default_input_max_characters=self.config.INPUT_DEFAULT_MAX_CHARACTERS,
+                default_generation_max_output_tokens=self.config.GENERATION_DEFAULT_MAX_TOKENS,
+                default_generation_temperature=self.config.GENERATION_DEFAULT_TEMPERATURE
+                
             )
 
-        elif provider == LLMEnums.OPENROUTER.value:
-            instance = OpenRouterProvider(
-                api_key=self.config.OPENROUTER_API_KEY,
-                base_url=self.config.OPENROUTER_API_URL,
-            )
 
         elif provider == LLMEnums.COHERE.value:
             instance = CoHereProvider(

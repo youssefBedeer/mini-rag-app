@@ -24,8 +24,6 @@ class Settings(BaseSettings):
 
     COHERE_API_KEY: Optional[str] = None
 
-    OPENROUTER_API_KEY: Optional[str] = None
-    OPENROUTER_API_URL: Optional[str] = None
     HF_API_KEY: Optional[str] = None
 
     # Models
