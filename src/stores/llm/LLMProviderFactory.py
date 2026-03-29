@@ -19,7 +19,6 @@ class LLMProviderFactory:
             instance = OpenRouterProvider(
                 api_key=self.config.OPENROUTER_API_KEY,
                 base_url=self.config.OPENROUTER_API_URL,
-                huggingface_api_key=self.config.HF_API_KEY
             )
 
         elif provider == LLMEnums.COHERE.value:
