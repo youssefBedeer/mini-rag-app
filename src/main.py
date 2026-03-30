@@ -6,14 +6,19 @@ from helpers.config import get_settings
 from stores.llm.LLMProviderFactory import LLMProviderFactory
 from stores.vectordb.VectorDBProviderFactory import VectorDBProviderFactory
 from stores.llm.templates.template_parser import TemplateParser
+from sqlalchemy import URL
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # connect mongodb on start
     settings = get_settings()
     
-    app.mongo_conn = AsyncMongoClient(settings.MONGODB_URL)
-    app.db_client = app.mongo_conn[settings.MONGODB_DATABASE]
+    # connect postgress
+    postgres_conn = f"postgresql+asyncpg://{settings.POSTGRES_USERNAME}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_MAIN_DATABASE}"
+    
+    app.db_engine = create_async_engine(postgres_conn)
+    app.db_client = async_sessionmaker(app.db_engine, expire_on_commit=False)
     
     ## initialize providers
     llm_provider_factory = LLMProviderFactory(config=settings)
@@ -40,7 +45,7 @@ async def lifespan(app: FastAPI):
     
     # Close on finish
     yield
-    await app.mongo_conn.close()
+    await app.db_engine.dispose()
     app.vectordb_client.disconnect()
 
 
