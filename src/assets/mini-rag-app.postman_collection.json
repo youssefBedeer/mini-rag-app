@@ -1,0 +1,54 @@
+{
+  "info": {
+    "_postman_id": "95386475-4809-4b34-97b6-dccfad791827",
+    "name": "mini-rag-app",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48035849"
+  },
+  "item": [
+    {
+      "name": "health_check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api}}",
+          "host": [
+            "{{api}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "api",
+      "value": ""
+    }
+  ]
+}
