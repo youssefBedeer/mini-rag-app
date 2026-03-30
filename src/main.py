@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from pymongo import AsyncMongoClient
 from routes import base, data, nlp
 from helpers.config import get_settings
 from stores.llm.LLMProviderFactory import LLMProviderFactory
 from stores.vectordb.VectorDBProviderFactory import VectorDBProviderFactory
 from stores.llm.templates.template_parser import TemplateParser
-from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 
