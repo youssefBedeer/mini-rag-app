@@ -1,5 +1,5 @@
 from typing import List
-from models.db_schemas.data_chunk import DataChunk
+from models.db_schemas import DataChunk
 from stores.llm.LLMEnums import DocumentTypeEnum
 from .BaseController import BaseController 
 from models.db_schemas import Project

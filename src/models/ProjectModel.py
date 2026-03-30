@@ -1,6 +1,6 @@
 from .BaseDataModel import BaseDataModel 
 from .enums.DatabaseEnums import DatabaseEnums
-from .db_schemas.project import Project
+from .db_schemas import Project
 
 
 class ProjectModel(BaseDataModel):

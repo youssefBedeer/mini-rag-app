@@ -4,7 +4,7 @@ from sqlalchemy import UUID, Column, Integer, String, DateTime, func
 from sqlalchemy.orm import relationship
 
 class Project(SQLAlchemyBase):
-    __table__ = "projects" 
+    __tablename__ = "projects" 
     
     project_id = Column(Integer, primary_key=True, autoincrement=True)
     project_uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)

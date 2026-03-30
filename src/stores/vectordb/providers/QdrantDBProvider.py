@@ -1,4 +1,4 @@
-from models.db_schemas.data_chunk import RetrievedDocument
+from models.db_schemas import RetrievedDocument
 
 from ..VectorDBInterface import VectorDBInterface 
 from ..VectorDBEnums import DistanceMethodEnums
