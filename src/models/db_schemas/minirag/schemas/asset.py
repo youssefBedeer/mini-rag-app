@@ -10,7 +10,7 @@ class Asset(SQLAlchemyBase):
     __tablename__ = "assets"
     
     asset_id = Column(Integer, primary_key=True, autoincrement=True)
-    asset_uuid = Column(UUID(as_uuid=True), unique=True, nullable=False)
+    asset_uuid = Column(UUID(as_uuid=True), default=uuid.uuid4, unique=True, nullable=False)
     
     asset_name = Column(String, nullable=False)
     asset_type = Column(String, nullable=False)

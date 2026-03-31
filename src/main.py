@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from models.BaseDataModel import BaseDataModel
 from routes import base, data, nlp
 from helpers.config import get_settings
 from stores.llm.LLMProviderFactory import LLMProviderFactory
@@ -14,9 +15,10 @@ async def lifespan(app: FastAPI):
     
     # connect postgress
     postgres_conn = f"postgresql+asyncpg://{settings.POSTGRES_USERNAME}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_MAIN_DATABASE}"
-    print(postgres_conn)
+
     app.db_engine = create_async_engine(postgres_conn)
-    app.db_client = async_sessionmaker(app.db_engine, expire_on_commit=False)
+    app.db_client  = async_sessionmaker(app.db_engine, expire_on_commit=False)
+    
     
     ## initialize providers
     llm_provider_factory = LLMProviderFactory(config=settings)
