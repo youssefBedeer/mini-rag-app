@@ -12,7 +12,7 @@ class NLPController(BaseController):
         super().__init__() 
         
         self.vectordb_client = vectordb_client 
-        self.generation_clinet = generation_client 
+        self.generation_client = generation_client 
         self.embedding_client = embedding_client 
         self.template_parser = template_parser
         
@@ -103,7 +103,7 @@ class NLPController(BaseController):
         document_prompt = "\n".join([
             self.template_parser.get("rag", "document_prompt", {
                 "doc_num": idx + 1,
-                "chunk_text": doc.text
+                "chunk_text": self.generation_client.process_text(doc.text)
             })
             for idx, doc in enumerate(retrived_documents)
         ])
@@ -111,15 +111,15 @@ class NLPController(BaseController):
         footer_prompt = self.template_parser.get("rag", "footer_prompt", {"query":query})
         
         chat_history = [
-            self.generation_clinet.construct_prompt(
+            self.generation_client.construct_prompt(
                 prompt = system_prompt,
-                role = self.generation_clinet.enums.SYSTEM.value
+                role = self.generation_client.enums.SYSTEM.value
             )
         ] 
 
         full_prompt = "\n\n".join([document_prompt, footer_prompt])
         
-        answer = self.generation_clinet.generate_text(
+        answer = self.generation_client.generate_text(
             prompt = full_prompt,
             chat_history = chat_history
         )

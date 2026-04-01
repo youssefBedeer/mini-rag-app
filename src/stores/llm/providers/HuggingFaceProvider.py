@@ -101,5 +101,5 @@ class HuggingFaceProvider(LLMInterface):
     def construct_prompt(self, prompt: str, role: str):
         return  {
                     "role": role, 
-                    "content": self.process_text(text=prompt)
+                    "content": prompt
                 }
