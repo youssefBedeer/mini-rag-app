@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     GENERATION_DEFAULT_TEMPERATURE: Optional[float] 
 
     # VectorDB CONFIG
+    VECTOR_DB_BACKEND_LITERAL: List[str] = None
     VECTOR_DB_BACKEND: str
     VECTOR_DB_PATH: str
     VECTOR_DB_DISTANCE_METHOD: str

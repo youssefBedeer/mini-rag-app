@@ -9,8 +9,11 @@ from typing import List
 import numpy as np
 
 class QdrantDB(VectorDBInterface):
-    def __init__(self, db_path:str, distance_method: str = "cosine"):
-        self.db_path = db_path
+    def __init__(self, db_client: str,
+                default_vector_size: int = 786,
+                distance_method: str = None,
+                index_threshold: int=100):
+        self.db_clinet = db_client
         self.distance_method = distance_method
         self.client = None
         
@@ -23,26 +26,26 @@ class QdrantDB(VectorDBInterface):
         self.logger = logging.getLogger(__name__)
     
     
-    def connect(self) -> None:
-        self.client = QdrantClient(path = self.db_path)
+    async def connect(self) -> None:
+        self.client = QdrantClient(path = self.db_clinet)
     
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         self.client = None
     
-    def is_collection_existed(self, collection_name: str) -> bool:
+    async def is_collection_existed(self, collection_name: str) -> bool:
         return self.client.collection_exists(collection_name=collection_name)
     
-    def list_all_collections(self) -> List:
+    async def list_all_collections(self) -> List:
         return self.client.get_collections()
     
-    def get_collection_info(self, collection_name: str)-> dict:
+    async def get_collection_info(self, collection_name: str)-> dict:
         return self.client.get_collection(collection_name=collection_name)
     
-    def delete_collection(self, collection_name: str) -> None:
+    async def delete_collection(self, collection_name: str) -> None:
         if self.is_collection_existed(collection_name=collection_name):
             return self.client.delete_collection(collection_name=collection_name)
     
-    def create_collection(self, collection_name: str,
+    async def create_collection(self, collection_name: str,
                                 embedding_size: int, 
                                 do_reset: bool = False) -> bool:
         if do_reset:
@@ -59,7 +62,7 @@ class QdrantDB(VectorDBInterface):
         return False
     
     
-    def insert_one(self, collection_name: str,
+    async def insert_one(self, collection_name: str,
                           text: str,
                           vector: list,
                           metadata: dict = None, 
@@ -90,7 +93,7 @@ class QdrantDB(VectorDBInterface):
         return True
             
     
-    def insert_many(self, collection_name: str,
+    async def insert_many(self, collection_name: str,
                           texts: list[str],
                           vectors: list[list],
                           metadata: list[dict] = None,
@@ -142,7 +145,7 @@ class QdrantDB(VectorDBInterface):
         return True
         
 
-    def search_by_vector(self, collection_name: str, vector, limit: int = 5) -> List[RetrievedDocument] :
+    async def search_by_vector(self, collection_name: str, vector, limit: int = 5) -> List[RetrievedDocument] :
         if not self.is_collection_existed(collection_name=collection_name):
             self.logger.error(f"Can not search, collection: {collection_name} not existed.")
             return False
