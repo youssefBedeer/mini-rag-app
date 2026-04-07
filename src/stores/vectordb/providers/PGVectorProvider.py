@@ -92,7 +92,7 @@ class PGVectorProvider(VectorDBInterface):
             async with session.begin():
                 self.logger.info(f"Deleting collection: {collection_name}")
 
-                delete_sql = sql_text(f'DROP TABLE IF EXISTS {collection_name}')
+                delete_sql = sql_text(f'DROP TABLE IF EXISTS {collection_name} CASCADE')
                 await session.execute(delete_sql)
                 await session.commit()
         
@@ -165,7 +165,6 @@ class PGVectorProvider(VectorDBInterface):
                                           USING {index_type} ({PgVectorTableSchemeEnums.VECTOR.value} {self.distance_method})
                                           """)
                 await session.execute(create_idx_sql)
-                self.logger.info(f"END: Created vector index for collection: {collection_name}")
 
                 
     async def reset_vector_index(self, collection_name: str, 

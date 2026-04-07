@@ -111,7 +111,6 @@ async def process_data(request: Request, project_id: int, process_request: Proce
         
     project_assets_ids = {}
     
-    print(f"project_id: {project.project_id}\n file_id: {process_request.file_id}")
     if process_request.file_id:
         asset_record = await asset_model.get_asset_record(
             asset_project_id= project.project_id,
