@@ -15,6 +15,7 @@ class QdrantDB(VectorDBInterface):
                 index_threshold: int=100):
         self.db_clinet = db_client
         self.distance_method = distance_method
+        self.default_vector_size = default_vector_size
         self.client = None
         
         if distance_method == DistanceMethodEnums.COSINE.value:

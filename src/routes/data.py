@@ -10,7 +10,7 @@ from .schemas.data import ProcessRequest
 from models import ChunkModel, AssetModel, ProjectModel
 from models import Project, DataChunk, Asset
 from models.enums import AssetTypeEnums
-
+from controllers import NLPController
 
 logger = logging.getLogger('uvicorn.error')
 
@@ -82,7 +82,7 @@ async def upload_data(project_id:int, file:UploadFile,
         
     
 @data_router.post("process/{project_id}")
-async def process_data(project_id: int, process_request: ProcessRequest,
+async def process_data(request: Request, project_id: int, process_request: ProcessRequest,
                     db=Depends(get_db)):
     
     chunk_size = process_request.chunk_size 
@@ -94,20 +94,30 @@ async def process_data(project_id: int, process_request: ProcessRequest,
     chunk_model = await ChunkModel.create_instance(db_client=db)
     asset_model = await AssetModel.create_instance(db_client=db)
     process_controller = ProcessController(project_id=project_id)
+    nlp_controller = NLPController(
+        vectordb_client = request.app.vectordb_client,
+        generation_client = request.app.generation_client,
+        embedding_client = request.app.embedding_client,
+        template_parser = request.app.template_parser)
     
     project = await project_model.get_project_or_create_one(project_id=project_id)
     
     if do_reset == 1:
+        collection_name = nlp_controller.create_collection_name(project_id=project.project_id)
+        _ = await request.app.vectordb_client.delete_collection(collection_name=collection_name)
         _ = await chunk_model.delete_chunks_by_project_id(
             project_id=project.project_id
         )
         
     project_assets_ids = {}
+    
+    print(f"project_id: {project.project_id}\n file_id: {process_request.file_id}")
     if process_request.file_id:
         asset_record = await asset_model.get_asset_record(
             asset_project_id= project.project_id,
             asset_name= process_request.file_id
         )
+
         
         if asset_record is None:
             return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,

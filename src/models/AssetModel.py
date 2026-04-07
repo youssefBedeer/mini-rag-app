@@ -23,7 +23,8 @@ class AssetModel(BaseDataModel):
             async with session.begin():
                 session.add(asset)
             await session.refresh(asset)
-            
+        
+        print(asset)
         return asset
     
     async def get_all_project_assets(self,asset_project_id: str,asset_type: str) -> list[Asset]:

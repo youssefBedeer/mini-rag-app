@@ -24,10 +24,9 @@ class PGVectorProvider(VectorDBInterface):
         self.distance_method = distance_method
         
         self.pgvector_table_prefix = PgVectorTableSchemeEnums._PREFIX.value
-        self.index_threshold = PgVectorTableSchemeEnums.ind
         
         self.default_index_name = lambda collection_name: f"{collection_name}_vector_idx"
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("uvicorn.error")
     
     async def connect(self) -> None:
         async with self.db_client() as session:
@@ -110,16 +109,17 @@ class PGVectorProvider(VectorDBInterface):
             self.logger.info(f"Creating collection: {collection_name}")
             async with self.db_client() as session:
                 async with session.begin():
-                    create_sql = sql_text("""
-                        CREATE TABLE IF NOT EXISTS {} (
+                    create_sql = sql_text(f"""
+                        CREATE TABLE {collection_name} (
                             id BIGSERIAL PRIMARY KEY,
                             text TEXT,
-                            vector VECTOR(:dim),
+                            vector VECTOR({embedding_size}),
                             metadata JSONB DEFAULT '{{}}',
                             chunk_id INTEGER,
                             FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id)
                         )
-                        """.format(collection_name))
+                        """
+                        )
                     await session.execute(create_sql)
                     
             return True
@@ -131,17 +131,20 @@ class PGVectorProvider(VectorDBInterface):
             async with session.begin():
                 check_sql = sql_text(f"""
                                     SELECT 1
-                                    FROM pg_indexs
+                                    FROM pg_indexes
                                     WHERE tablename = :collection_name
                                     AND indexname = :index_name
                                     """)
-                results = await session.execute(check_sql, {"index_name": index_name, "collection_name": collection_name})
+                results = await session.execute(check_sql, {
+                    "collection_name":collection_name,
+                    "index_name":index_name
+                })
                 return bool(results.scalar_one_or_none())
                 
     
     async def create_vector_index(self, collection_name: str,
                                   index_type: str = PgVectorIndexTypeEnums.HNSW.value):
-        is_index_existed = self.is_index_existed(collection_name=collection_name)
+        is_index_existed = await self.is_index_existed(collection_name=collection_name)
         if is_index_existed:
             return False
         
@@ -241,7 +244,7 @@ class PGVectorProvider(VectorDBInterface):
                     values = [] 
                     
                     for _text, _vector, _metadata, _record_id in zip(batch_texts, batch_vectors, batch_metadata, batch_record_ids):
-                        metadata_json = json.dump(_metadata, ensure_ascii=False) if _metadata is not None else "{}"
+                        metadata_json = json.dumps(_metadata, ensure_ascii=False) if _metadata is not None else "{}"
                         values.append({
                             'text': _text,
                             'vector': "[" + ",".join([ str(v) for v in _vector ]) + "]",
@@ -260,8 +263,8 @@ class PGVectorProvider(VectorDBInterface):
                     
                     await session.execute(batch_insert_sql, values)
                     
-            await self.create_vector_index(collection_name=collection_name)
-            return  True
+        await self.create_vector_index(collection_name=collection_name)
+        return  True
                     
     async def search_by_vector(self, collection_name: str, vector, limit: int = 5) -> List[RetrievedDocument] :
         
@@ -289,7 +292,7 @@ class PGVectorProvider(VectorDBInterface):
                 return [
                     RetrievedDocument(
                         text = record.text,
-                        socre = record.score
+                        score = record.score
                     )
                     for record in records
                     ]
