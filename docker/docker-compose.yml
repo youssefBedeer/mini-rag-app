@@ -111,11 +111,16 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+    # Docker Desktop / WSL: host proc is incomplete and 9p mounts break the filesystem
+    # collector; softnet/netstat then log errors every scrape. Safe to drop for dev dashboards.
     command:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fuse.*|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs|9p)$$'
+      - '--no-collector.softnet'
+      - '--no-collector.netstat'
     networks:
       - backend
     restart: always

@@ -6,10 +6,10 @@ FILE_ALLOWED_TYPES = ["text/plain", "application/pdf"]
 FILE_MAX_SIZE = 1 # MB
 FILE_DEFAULT_CHUNK_SIZE = 512000 # 512KB
 
-# DATABASE
+# DATABASE — for docker compose use host pgvector and the same password as docker/env/.env.Postgres
 POSTGRES_USERNAME="postgres"
-POSTGRES_PASSWORD="password"
-POSTGRES_HOST="localhost"
+POSTGRES_PASSWORD="postgres_password"
+POSTGRES_HOST="pgvector"
 POSTGRES_PORT=5432
 POSTGRES_MAIN_DATABASE="minirag"
 
