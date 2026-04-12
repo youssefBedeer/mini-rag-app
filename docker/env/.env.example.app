@@ -24,7 +24,7 @@ OPENAI_API_KEY= ""
 COHERE_API_KEY= ""
 HF_API_KEY= ""
 
-GENERATION_MODEL_ID= "stepfun/step-3.5-flash:free"
+GENERATION_MODEL_ID= "liquid/lfm-2.5-1.2b-instruct:free"
 EMBEDDING_MODEL_ID= "BAAI/bge-m3"
 EMBEDDING_MODEL_SIZE=1024
 

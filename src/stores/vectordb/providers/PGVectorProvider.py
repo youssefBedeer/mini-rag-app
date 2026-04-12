@@ -29,14 +29,24 @@ class PGVectorProvider(VectorDBInterface):
         self.default_index_name = lambda collection_name: f"{collection_name}_vector_idx"
         self.logger = logging.getLogger("uvicorn.error")
     
-    async def connect(self) -> None:
+
+    async def connect(self):
         async with self.db_client() as session:
             try:
-                async with session.begin():
-                    await session.execute(sql_text('CREATE EXTENSION IF NOT EXISTS vector'))
-            except IntegrityError:
-                # Uvicorn --workers > 1 runs lifespan in parallel; concurrent CREATE EXTENSION can race.
-                pass
+                # Check if vector extension already exists
+                result = await session.execute(sql_text(
+                    "SELECT 1 FROM pg_extension WHERE extname = 'vector'"
+                ))
+                extension_exists = result.scalar_one_or_none()
+                
+                if not extension_exists:
+                    # Only create if it doesn't exist
+                    await session.execute(sql_text("CREATE EXTENSION vector"))
+                    await session.commit()
+            except Exception as e:
+                # If extension already exists or any other error, just log and continue
+                self.logger.warning(f"Vector extension setup: {str(e)}")
+                await session.rollback()
     
     async def disconnect(self) -> None:
         pass
